@@ -115,43 +115,56 @@ compatibility_flags = ["nodejs_compat"]
 
 | Thành viên | MSSV | Vai trò | Phụ trách |
 |------------|------|---------|-----------|
-| **Nguyễn Văn A** | 20201234 | **Project Lead / Backend Developer** | - Xác thực, API endpoints<br>- Logic nghiệp vụ (order, payment)<br>- Database schema design<br>- Terraform infrastructure |
-| **Trần Thị B** | 20205678 | **Frontend Developer** | - React components<br>- UI/UX thiết kế<br>- Shopping cart integration<br>- User experience |
-| **Lê Văn C** | 20209012 | **DevOps / Integration** | - Cloudflare setup<br>- Third-party API integration<br>- Deployment pipeline<br>- Testing & QA |
+| **Nguyễn Văn A** | 20201234 | **Project Lead / Backend Developer** | - Xác thực, API endpoints<br>- Logic nghiệp vụ (order, payment)<br>- Database schema design<br>- Terraform infrastructure<br>- Code review leadership |
+| **Trần Thị B** | 20205678 | **Frontend Developer** | - React components<br>- UI/UX thiết kế<br>- Shopping cart integration<br>- User experience<br>- Accessibility (a11y) |
+| **Lê Văn C** | 20209012 | **DevOps / Integration** | - Cloudflare setup<br>- Third-party API integration<br>- Deployment pipeline<br>- Testing & QA<br>- Docker configuration |
+| **Phạm Thị D** | 20210145 | **QA / Testing Lead** | - Playwright E2E tests<br>- Unit tests cho backend<br>- Bug tracking và triage<br>- Test documentation<br>- Performance testing |
 
 ### 3.2. Phân công công việc chi tiết
 
 **1. Nguyễn Văn A (Backend Lead):**
-- [ ] Thiết kế và внедрять схему D1 database (40h)
-- [ ] Xác thực JWT, middleware bảo vệ routes (30h)
-- [ ] Xây dựng API routes: auth, products, orders, uploads (50h)
-- [] Tích hợp Stripe payment SDK (25h)
-- [] Tích hợp Printful API sync & fulfillment (20h)
+- [ ] Thiết kế và внедрять схему D1 database (30h)
+- [ ] Xác thực JWT, middleware bảo vệ routes (25h)
+- [ ] Xây dựng API routes: auth, products, orders, uploads (45h)
+- [ ] Tích hợp Stripe payment SDK (20h)
+- [ ] Tích hợp Printful API sync & fulfillment (15h)
 - [ ] Viết unit tests cho backend services (15h)
-- Tổng: **200 giờ**
+- [ ] Code review cho PR của team (10h)
+- Tổng: **160 giờ**
 
 **2. Trần Thị B (Frontend Lead):**
-- [ ] Thiết kế giao diện UI/UX cho toàn ứng dụng (40h)
-- [ ] Xây dựng React components: navbar, products, cart, checkout (50h)
-- [ ] Implement shopping cart context & state management (25h)
-- [ ] Upload art component với drag & drop (20h)
+- [ ] Thiết kế giao diện UI/UX cho toàn ứng dụng (35h)
+- [ ] Xây dựng React components: navbar, products, cart, checkout (45h)
+- [ ] Implement shopping cart context & state management (20h)
+- [ ] Upload art component với drag & drop (15h)
 - [ ] Form validation & error handling (15h)
 - [ ] Responsive design với TailwindCSS (15h)
 - [ ] Playwright E2E tests (15h)
-- Tổng: **180 giờ**
+- [ ] Accessibility audit (10h)
+- Tổng: **160 giờ**
 
-**3. Lê Văn C (DevOps/Integration):**
+**3. Lê Văn C (DevOps / Integration):**
 - [ ] Cấu hình Cloudflare account & API tokens (10h)
 - [ ] Khởi tạo D1 database, tạo migrations (15h)
-- [] Cấu hình R2 bucket, CORS, signed URLs (15h)
-- [] Cấu hình KV namespace cho caching (10h)
-- [] Setup Terraform infrastructure (25h)
-- [] GitHub Actions workflows (deploy, test) (20h)
+- [ ] Cấu hình R2 bucket, CORS, signed URLs (15h)
+- [ ] Cấu hình KV namespace cho caching (10h)
+- [ ] Setup Terraform infrastructure (20h)
+- [ ] GitHub Actions workflows (deploy, test) (20h)
 - [ ] Docker compose configuration (15h)
 - [ ] Debug integration issues (20h)
+- Tổng: **125 giờ**
+
+**4. Phạm Thị D (QA / Testing Lead):**
+- [ ] Viết Playwright E2E tests cho tất cả critical paths (30h)
+- [ ] Viết unit tests cho backend services (20h)
+- [ ] Viết test cases cho functional testing (25h)
+- [ ] Bug tracking và triage (20h)
+- [ ] Test documentation (10h)
+- [ ] Performance testing và reporting (15h)
+- [ ] Code review cho test coverage (10h)
 - Tổng: **130 giờ**
 
-**Tổng công lao nhóm**: **510 hours** (khoảng 2-3 tháng làm việc 40h/tuần)
+**Tổng công lao nhóm**: **575 hours** (khoảng 3 tháng làm việc 40h/tuần với 4 thành viên)
 
 ### 3.3. Kỹ năng giao tiếp & phối hợp
 - **Meeting**: 2 lần/tuần (Thứ 2 & Thứ 4, 18:00-19:30)
