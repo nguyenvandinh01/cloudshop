@@ -57,7 +57,7 @@ export default function AdminUserDetailPage() {
         setUserDetail((response.data as AdminUserDetail) ?? null);
       } catch (err) {
         console.error('Failed to fetch admin user:', err);
-        setErrorMessage('Not authorized to view this user.');
+        setErrorMessage('Bạn không có quyền xem người dùng này.');
       } finally {
         setLoading(false);
       }
@@ -70,7 +70,7 @@ export default function AdminUserDetailPage() {
     return (
       <div className="main-class flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please sign in to view admin</h2>
+          <h2 className="text-2xl font-bold mb-4">Vui lòng đăng nhập để xem trang quản trị</h2>
           <a href="/login" className="text-indigo-600 hover:text-indigo-700">
             Go to login
           </a>
@@ -82,7 +82,7 @@ export default function AdminUserDetailPage() {
   return (
     <div className="main-class">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-3xl font-bold">Admin - User</h1>
+        <h1 className="text-3xl font-bold">Quản trị - Người dùng</h1>
         <div className="flex gap-2">
           <button
             type="button"
@@ -106,10 +106,10 @@ export default function AdminUserDetailPage() {
           </button>
         </div>
       ) : loading ? (
-        <p>Loading user…</p>
+        <p>Đang tải người dùng…</p>
       ) : !userDetail ? (
         <div className="text-center border border-gray-200 rounded-lg p-6">
-          <p className="text-gray-600">User not found.</p>
+          <p className="text-gray-600">Không tìm thấy người dùng.</p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -132,7 +132,7 @@ export default function AdminUserDetailPage() {
                       : 'border-gray-200 bg-white text-gray-700',
                   ].join(' ')}
                 >
-                  {userDetail.user.admin ? 'Admin' : 'User'}
+                  {userDetail.user.admin ? 'Quản trị viên' : 'Người dùng'}
                 </span>
               </div>
             </div>
@@ -140,12 +140,12 @@ export default function AdminUserDetailPage() {
 
           <div className="border border-gray-200 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4 gap-3">
-              <h2 className="text-xl font-semibold">Orders</h2>
+              <h2 className="text-xl font-semibold">Đơn hàng</h2>
               <p className="text-sm text-gray-600">{userDetail.orders.length} order(s)</p>
             </div>
 
             {userDetail.orders.length === 0 ? (
-              <p className="text-sm text-gray-600">No orders found for this user.</p>
+              <p className="text-sm text-gray-600">Người dùng này chưa có đơn hàng nào.</p>
             ) : (
               <div className="space-y-3">
                 {userDetail.orders.map((order) => (

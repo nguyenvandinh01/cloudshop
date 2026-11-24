@@ -27,7 +27,7 @@ export default function CategoryPage() {
   return (
     <div className="main-class">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold">Category</h1>
+        <h1 className="text-3xl font-bold">Danh mục</h1>
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -40,9 +40,9 @@ export default function CategoryPage() {
       <div className="flex flex-row lg:flex-row gap-8">
         <div className="md:block hidden">
           {categoriesError ? (
-            <p className="text-sm text-red-600">Failed to load categories</p>
+            <p className="text-sm text-red-600">Không thể tải danh mục</p>
           ) : categoriesLoading ? (
-            <p className="text-sm text-gray-600">Loading categories...</p>
+            <p className="text-sm text-gray-600">Đang tải danh mục…</p>
           ) : (
             <CategoryNav currentCategoryId={id ?? ''} categories={navCategories} />
           )}
@@ -50,9 +50,9 @@ export default function CategoryPage() {
 
         <div className="flex-1">
           {error ? <p className="text-sm text-red-600 mb-4">{error}</p> : null}
-          {loading ? <p className="text-sm text-gray-600 mb-4">Loading category products...</p> : null}
+          {loading ? <p className="text-sm text-gray-600 mb-4">Đang tải sản phẩm theo danh mục…</p> : null}
 
-          {!loading ? <ProductsSection title="Printful Products" products={cards} /> : null}
+          {!loading ? <ProductsSection title="Sản phẩm Printful" products={cards} /> : null}
         </div>
       </div>
     </div>

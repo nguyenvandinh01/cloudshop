@@ -10,9 +10,7 @@ export default function GlobalLayout() {
     <>
         <div className="bg-orange-100 border-b border-orange-200 text-orange-700">
           <div className="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between gap-4">
-              SANDBOX MODE - This is a demo application. ORDERS WILL NOT BE PROCESSED. Payments will not be charged. Please use the test card number 4242 4242 4242 4242 with any future expiration date and any CVC code for testing.
-            </div>
+            <div className="flex items-center justify-between gap-4">CHẾ ĐỘ DEMO - Đây là ứng dụng thử nghiệm. ĐƠN HÀNG SẼ KHÔNG ĐƯỢC XỬ LÝ. Thanh toán sẽ không bị trừ tiền. Vui lòng dùng thẻ test 4242 4242 4242 4242 với ngày hết hạn bất kỳ trong tương lai và mã CVC bất kỳ để thử nghiệm.</div>
           </div>
         </div>
 
@@ -24,29 +22,21 @@ export default function GlobalLayout() {
           <div className="max-w-7xl mx-auto px-4 py-2 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-wrap">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Admin
-                </span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Quản trị viên</span>
 
                 <nav className="flex items-center gap-2">
                   <Link
                     to="/admin/users"
                     className="text-sm font-medium px-2 py-1 rounded hover:text-gray-900 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-                  >
-                    Users
-                  </Link>
+                  >Người dùng</Link>
                   <Link
                     to="/admin/orders"
                     className="text-sm font-medium px-2 py-1 rounded hover:text-gray-900 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-                  >
-                    Orders
-                  </Link>
+                  >Đơn hàng</Link>
                   <Link
                     to="/admin/products"
                     className="text-sm font-medium px-2 py-1 rounded hover:text-gray-900 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
-                  >
-                    Products
-                  </Link>
+                  >Sản phẩm</Link>
                 </nav>
               </div>
 
@@ -72,15 +62,9 @@ export default function GlobalLayout() {
             <nav className="flex space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link to="/" className="text-gray-700 hover:text-gray-900">
-                    Shop
-                  </Link>
-                  <Link to="/orders" className="text-gray-700 hover:text-gray-900">
-                    Orders
-                  </Link>
-                  <Link to="/cart" className="text-gray-700 hover:text-gray-900">
-                    Cart
-                  </Link>
+                  <Link to="/" className="text-gray-700 hover:text-gray-900">Cửa hàng</Link>
+                  <Link to="/orders" className="text-gray-700 hover:text-gray-900">Đơn hàng</Link>
+                  <Link to="/cart" className="text-gray-700 hover:text-gray-900">Giỏ hàng</Link>
                   <button
                     type="button"
                     onClick={async () => {
@@ -88,14 +72,10 @@ export default function GlobalLayout() {
                       window.location.href = '/login';
                     }}
                     className="text-gray-700 hover:text-gray-900"
-                  >
-                    Logout
-                  </button>
+                  >Đăng xuất</button>
                 </>
               ) : (
-                <Link to="/login" className="text-gray-700 hover:text-gray-900">
-                  Login
-                </Link>
+                <Link to="/login" className="text-gray-700 hover:text-gray-900">Đăng nhập</Link>
               )}
             </nav>
           </div>
@@ -110,7 +90,7 @@ export default function GlobalLayout() {
       {/* Shared footer */}
       <footer className="border-t border-slate-800 bg-slate-950 text-xs text-slate-500">
         <div className="mx-auto max-w-7xl px-4 py-6 text-center">
-          &copy; {new Date().getFullYear()} My Store Inc. All rights reserved.
+          &copy; {new Date().getFullYear()} Cloudshop. Bảo lưu mọi quyền.
         </div>
       </footer>
     </>

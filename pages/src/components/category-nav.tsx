@@ -95,8 +95,8 @@ export default function CategoryNav({
     return (
       <aside className={className ?? "w-full md:w-72 md:flex-shrink-0"}>
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h2 className="text-sm font-semibold text-gray-900 mb-2">Categories</h2>
-          <p className="text-sm text-gray-600">Unknown category</p>
+          <h2 className="text-sm font-semibold text-gray-900 mb-2">Danh mục</h2>
+          <p className="text-sm text-gray-600">Danh mục không xác định</p>
         </div>
       </aside>
     );
@@ -141,10 +141,10 @@ export default function CategoryNav({
     <aside className={className ?? "w-full md:w-72 md:flex-shrink-0"}>
       <div className="rounded-lg border border-gray-200 bg-white p-4">
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-gray-900">Categories</h2>
+          <h2 className="text-sm font-semibold text-gray-900">Danh mục</h2>
         </div>
 
-        <nav aria-label="Category navigation" className="space-y-4">
+        <nav aria-label="Điều hướng danh mục" className="space-y-4">
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
               By hierarchy

@@ -24,6 +24,7 @@ type ProductVariantResponse = {
 type ProductResponse = {
   id: string;
   external_id?: string;
+  provider?: string;
   title?: string;
   name?: string;
   description?: string | null;
@@ -35,9 +36,9 @@ type ProductResponse = {
 };
 
 function formatVariantTitle(size: string | null | undefined, color: string | null | undefined): string {
-  const safeSize = size ?? '';
-  const safeColor = color ?? '';
-  return `${safeSize} / ${safeColor}`.replace(/\s\/\s/g, ' / ');
+  if (!size) return color ?? '';
+  if (!color) return size;
+  return `${size} / ${color}`;
 }
 
 function toProductResponse(
@@ -66,6 +67,8 @@ function toProductResponse(
   return {
     id: String(productRow.id),
     external_id: productRow.provider_product_id ?? String(productRow.id),
+    // Catalog products are synced from Printful (or its local mock).
+    provider: 'printful',
     title: productRow.name,
     name: productRow.name,
     description: productRow.description,

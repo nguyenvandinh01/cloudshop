@@ -42,6 +42,7 @@ type OrderRequestItem = {
 
 type AddressInput = {
   name?: string;
+  phone?: string;
   line1?: string;
   line2?: string | null;
   city?: string;
@@ -135,11 +136,12 @@ async function findOrCreateAddress(
   userId: string,
   addressInput: AddressInput
 ): Promise<string> {
-  const { name, line1, line2, city, state, postal_code, country } = addressInput;
+  const { name, phone, line1, line2, city, state, postal_code, country } = addressInput;
 
   // Normalize: trim whitespace, lowercase country/state for consistent matching
   const normalized = {
     name: name?.trim() ?? null,
+    phone: phone?.trim() ?? null,
     line1: line1?.trim() ?? null,
     line2: line2?.trim() ?? null,
     city: city?.trim() ?? null,
@@ -156,6 +158,7 @@ async function findOrCreateAddress(
       and(
         eq(schema.addresses.user_id, userId),
         eq(schema.addresses.name, normalized.name),
+        eq(schema.addresses.phone, normalized.phone),
         eq(schema.addresses.line1, normalized.line1),
         eq(schema.addresses.line2, normalized.line2),
         eq(schema.addresses.city, normalized.city),
@@ -175,6 +178,7 @@ async function findOrCreateAddress(
     id: addressId,
     user_id: userId,
     name: normalized.name,
+    phone: normalized.phone,
     line1: normalized.line1,
     line2: normalized.line2,
     city: normalized.city,
@@ -555,6 +559,62 @@ orders.post('/:orderId/submit-to-printful', verifyJWT, async (c) => {
   }
 });
 
+// Local/demo estimate: keeps checkout usable without a Printful API key.
+function buildMockEstimate(body: {
+  order_items: Array<{ retail_price?: string; quantity: number }>;
+  retail_costs?: { currency?: string; discount?: string; shipping?: string; tax?: string };
+}) {
+  const parse = (value?: string) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const currency = (body.retail_costs?.currency ?? 'usd').toLowerCase();
+  const subtotal = body.order_items.reduce(
+    (sum, item) => sum + parse(item.retail_price) * item.quantity,
+    0
+  );
+  const shipping = parse(body.retail_costs?.shipping) || 4.99;
+  const discount = parse(body.retail_costs?.discount);
+  const tax = parse(body.retail_costs?.tax);
+  const total = Math.max(0, subtotal + shipping + tax - discount);
+
+  const fmt = (value: number) => value.toFixed(2);
+  const zero = '0.00';
+
+  const costs = {
+    calculation_status: 'completed',
+    currency,
+    subtotal: fmt(subtotal),
+    discount: fmt(discount),
+    shipping: fmt(shipping),
+    digitization: zero,
+    additional_fee: zero,
+    fulfillment_fee: zero,
+    retail_delivery_fee: zero,
+    vat: zero,
+    tax: fmt(tax),
+    total: fmt(total),
+  };
+
+  return {
+    id: `mock-estimate-${Date.now()}`,
+    status: 'completed',
+    costs,
+    retail_costs: {
+      calculation_status: 'completed',
+      currency,
+      subtotal: fmt(subtotal),
+      discount: fmt(discount),
+      shipping: fmt(shipping),
+      vat: zero,
+      tax: fmt(tax),
+      total: fmt(total),
+    },
+    failure_reasons: [],
+  };
+}
+
 // Get printful shipping estimate for order items.
 orders.post('/printful-estimate', async (c) => {
   try {
@@ -581,6 +641,10 @@ orders.post('/printful-estimate', async (c) => {
     }
     if (!body.order_items?.length) {
       return c.json({ error: 'Order items required' }, 400);
+    }
+
+    if (c.env.USE_MOCKS === 'true' || !c.env.PRINTFUL_API_KEY) {
+      return c.json(buildMockEstimate(body));
     }
 
     // Auto-resolve state from zip if not provided (US-only)
@@ -690,6 +754,27 @@ orders.get('/:id', verifyJWT, async (c) => {
     if (order.user_id !== userId) {
       return c.json({ error: 'Order not found' }, 404);
     }
+
+    const addressRows = await db
+      .select({
+        address_type: schema.orderAddresses.address_type,
+        name: schema.addresses.name,
+        phone: schema.addresses.phone,
+        line1: schema.addresses.line1,
+        line2: schema.addresses.line2,
+        city: schema.addresses.city,
+        state: schema.addresses.state,
+        postal_code: schema.addresses.postal_code,
+        country: schema.addresses.country,
+      })
+      .from(schema.orderAddresses)
+      .innerJoin(schema.addresses, eq(schema.orderAddresses.address_id, schema.addresses.id))
+      .where(eq(schema.orderAddresses.order_id, id));
+
+    const addresses = {
+      billing: addressRows.find((row) => row.address_type === 'billing') ?? null,
+      shipping: addressRows.find((row) => row.address_type === 'shipping') ?? null,
+    };
 
     const itemRows = await db
       .select({
@@ -843,6 +928,7 @@ orders.get('/:id', verifyJWT, async (c) => {
       status: order.status,
       total_price: order.total_price,
       created_at: order.created_at,
+      addresses,
       items: itemRows.map((row) => {
         const thumbUrl = thumbUrlByOrderItemId.get(String(row.order_item_id)) ?? null;
         const variantImageUrl =

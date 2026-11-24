@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (!response.ok) {
-      throw new Error('Login failed');
+      throw new Error('Đăng nhập thất bại');
     }
 
     const data = (await response.json()) as { user: User };
@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (!response.ok) {
-      throw new Error('Signup failed');
+      throw new Error('Đăng ký thất bại');
     }
 
     const data = (await response.json()) as { user: User; access_token?: string; refresh_token?: string };

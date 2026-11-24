@@ -15,7 +15,7 @@ export default function AdminSyncProductsPage() {
       const response = await adminApi.syncProducts();
       setResult(response.data);
     } catch (err: any) {
-      setError(err.message || 'Failed to sync products');
+      setError(err.message || 'Không thể đồng bộ sản phẩm');
     } finally {
       setLoading(false);
     }
@@ -25,7 +25,7 @@ export default function AdminSyncProductsPage() {
     return (
       <div className="main-class flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Unauthorized, Please sign in to view admin</h2>
+          <h2 className="text-2xl font-bold mb-4">Không được phép. Vui lòng đăng nhập để xem trang quản trị</h2>
           <a href="/login" className="text-indigo-600 hover:text-indigo-700">
             Go to login
           </a>
@@ -36,7 +36,7 @@ export default function AdminSyncProductsPage() {
 
   return (
     <div className="main-class">
-      <h1 className="text-3xl font-bold mb-8">Admin - Sync Products</h1>
+      <h1 className="text-3xl font-bold mb-8">Quản trị - Đồng bộ sản phẩm</h1>
 
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
         <p className="text-yellow-800">
@@ -50,7 +50,7 @@ export default function AdminSyncProductsPage() {
           disabled={loading}
           className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
         >
-          {loading ? 'Syncing...' : 'Sync Products from Printful'}
+          {loading ? 'Đang đồng bộ…' : 'Đồng bộ sản phẩm từ Printful'}
         </button>
 
         {error && (
@@ -61,7 +61,7 @@ export default function AdminSyncProductsPage() {
 
         {result && (
           <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-            <p className="font-semibold">Sync Complete</p>
+            <p className="font-semibold">Đồng bộ hoàn tất</p>
             <p>Synced {result.synced_count} products</p>
             <p className="text-sm mt-2">{result.synced_at}</p>
           </div>

@@ -52,7 +52,7 @@ export default function FullScreenDialog({
             {title ? (
               <h2 className="text-xl font-extrabold truncate">{title}</h2>
             ) : (
-              <div className="text-xl font-extrabold">Dialog</div>
+              <div className="text-xl font-extrabold">Hộp thoại</div>
             )}
           </div>
 

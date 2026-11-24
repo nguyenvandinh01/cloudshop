@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
         setUsers((response.data.users as AdminUser[]) || []);
       } catch (err) {
         console.error('Failed to fetch admin users:', err);
-        setErrorMessage('Not authorized to view users.');
+        setErrorMessage('Bạn không có quyền xem người dùng.');
         setUsers([]);
       } finally {
         setLoading(false);
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
     return (
       <div className="main-class flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please sign in to view admin</h2>
+          <h2 className="text-2xl font-bold mb-4">Vui lòng đăng nhập để xem trang quản trị</h2>
           <a href="/login" className="text-indigo-600 hover:text-indigo-700">
             Go to login
           </a>
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
   return (
     <div className="main-class">
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold">Admin - Users</h1>
+        <h1 className="text-3xl font-bold">Quản trị - Người dùng</h1>
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -78,15 +78,13 @@ export default function AdminUsersPage() {
       {errorMessage ? (
         <div className="border border-gray-200 rounded-lg p-6 text-center">
           <p className="text-gray-700 mb-4">{errorMessage}</p>
-          <a href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
-            Login
-          </a>
+          <a href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">Đăng nhập</a>
         </div>
       ) : loading ? (
-        <p>Loading users…</p>
+        <p>Đang tải người dùng…</p>
       ) : users.length === 0 ? (
         <div className="text-center border border-gray-200 rounded-lg p-6">
-          <p className="text-gray-600">No users found.</p>
+          <p className="text-gray-600">Không có người dùng nào.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -112,9 +110,9 @@ export default function AdminUsersPage() {
                         : 'border-gray-200 bg-white text-gray-700',
                     ].join(' ')}
                   >
-                    {user.admin ? 'Admin' : 'User'}
+                    {user.admin ? 'Quản trị viên' : 'Người dùng'}
                   </span>
-                  <span className="text-sm text-indigo-700 font-medium">View →</span>
+                  <span className="text-sm text-indigo-700 font-medium">Xem →</span>
                 </div>
               </div>
             </button>

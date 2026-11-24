@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
 
     try {
       if (!token) {
-        setError('Missing reset token');
+        setError('Thiếu mã đặt lại mật khẩu');
         return;
       }
 
@@ -33,7 +33,7 @@ export default function ResetPasswordPage() {
       }
 
       if (newPassword !== confirmPassword) {
-        setError('Passwords do not match');
+        setError('Mật khẩu không khớp');
         return;
       }
 
@@ -48,13 +48,13 @@ export default function ResetPasswordPage() {
         | undefined;
 
       if (!response.ok) {
-        setError(data?.error || 'Failed to reset password');
+        setError(data?.error || 'Không thể đặt lại mật khẩu');
         return;
       }
 
-      setStatus(data?.message || 'Password updated successfully');
+      setStatus(data?.message || 'Cập nhật mật khẩu thành công');
     } catch {
-      setError('Network error while resetting password');
+      setError('Lỗi mạng khi đặt lại mật khẩu');
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Reset Password</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Đặt lại mật khẩu</h2>
 
         {!token ? (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">New password</label>
+            <label className="block text-sm font-medium text-gray-700">Mật khẩu mới</label>
             <PasswordInput
               value={newPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Confirm password</label>
+            <label className="block text-sm font-medium text-gray-700">Xác nhận mật khẩu</label>
             <PasswordInput
               value={confirmPassword}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -115,7 +115,7 @@ export default function ResetPasswordPage() {
             disabled={isSubmitting || !token}
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Updating...' : 'Update password'}
+            {isSubmitting ? 'Đang cập nhật…' : 'Cập nhật mật khẩu'}
           </button>
         </form>
 

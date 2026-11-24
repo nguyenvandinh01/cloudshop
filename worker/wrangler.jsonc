@@ -47,8 +47,8 @@
       "r2_buckets": [
         {
           "binding": "R2",
-          "bucket_name": "cloudshop-uploads",
-          "remote": true // <--- ONLY R2 will connect to the live Cloudflare bucket
+          "bucket_name": "cloudshop-uploads"
+          // Local R2 simulation for localhost development (no Cloudflare credentials required)
         }
       ],
       "kv_namespaces": [
@@ -69,7 +69,7 @@
         {
           "binding": "DB",
           "database_name": "cloudshop-db-production",
-          "database_id": "${env.D1_DATABASE_ID}"
+          "database_id": "fe76b500-2b01-4cd6-b8b6-b9cf1d378218"
         }
       ],
       "r2_buckets": [
@@ -82,12 +82,12 @@
         {
           "binding": "KV",
           // "name": "cloudshop-kv-production"
-          "id": "${env.KV_NAMESPACE_ID}"
+          "id": "0e9ca071ef2a4986b70ecac3d411576a"
         }
       ],
       "vars": {
         "ENVIRONMENT": "production",
-        "USE_MOCKS": "false"
+        "USE_MOCKS": "true"
       }
     }
   }

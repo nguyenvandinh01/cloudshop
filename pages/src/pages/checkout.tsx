@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
-import { AddressElement, Elements, ElementsConsumer, PaymentElement } from '@stripe/react-stripe-js';
+import { Elements, ElementsConsumer, PaymentElement } from '@stripe/react-stripe-js';
 import type { Stripe, StripeElements } from '@stripe/stripe-js';
 
 import { useAuth } from '../AuthContext';
 import { ordersApi, PrintfulEstimateResponse, PrintstudioTemplateConfig, uploadsApi } from '../useApi';
 import PrintfulEstimate from '../components/PrintfulEstimate';
+import VietnamAddressForm, {
+  emptyVietnamAddress,
+  isVietnamAddressComplete,
+  type VietnamAddressValue,
+} from '../components/VietnamAddressForm';
 import { useShoppingCart } from 'use-shopping-cart';
 import { deleteManyPrintAssets, getPrintFileBlob } from '../printAssetsIdb';
 
@@ -54,12 +59,12 @@ async function dataUrlToResizedBlob(
 
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve();
-    img.onerror = () => reject(new Error('Failed to load image for resize'));
+    img.onerror = () => reject(new Error('Không thể tải ảnh để chỉnh kích thước'));
   });
 
   const { width, height } = img;
   if (!width || !height) {
-    throw new Error('Invalid image dimensions');
+    throw new Error('Kích thước ảnh không hợp lệ');
   }
 
   const scale = Math.min(1, maxSide / Math.max(width, height));
@@ -71,14 +76,14 @@ async function dataUrlToResizedBlob(
   canvas.height = nextHeight;
 
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Failed to create canvas context');
+  if (!ctx) throw new Error('Không thể tạo canvas');
 
   ctx.drawImage(img, 0, 0, nextWidth, nextHeight);
 
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
       (b) => {
-        if (!b) reject(new Error('Failed to convert canvas to blob'));
+        if (!b) reject(new Error('Không thể chuyển canvas sang ảnh'));
         else resolve(b);
       },
       mimeType,
@@ -118,20 +123,23 @@ async function createPaymentIntentUiClientSecret(params: {
   return data.client_secret;
 }
 
-type AddressInput = {
-  name?: string;
-  line1?: string;
-  line2?: string | null;
-  city?: string;
-  state?: string;
-  postal_code?: string;
-  country?: string;
-};
+type AddressInput = VietnamAddressValue;
 
 /** Parse a dollar string like "35.00" to integer cents (3500). */
 function dollarsToCents(dollars: string | number): number {
   const num = typeof dollars === 'string' ? parseFloat(dollars) : dollars;
   return Math.round(num * 100);
+}
+
+function toStripeAddress(address: AddressInput) {
+  return {
+    line1: address.line1,
+    line2: address.line2 || undefined,
+    city: address.city,
+    state: address.state,
+    postal_code: address.postal_code || undefined,
+    country: 'VN',
+  };
 }
 
 export default function CheckoutPage() {
@@ -149,8 +157,9 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string>('');
   const [email, setEmail] = useState<string>(user?.email ?? '');
 
-  const [billingAddress, setBillingAddress] = useState<AddressInput | null>(null);
-  const [shippingAddress, setShippingAddress] = useState<AddressInput | null>(null);
+  const [billingAddress, setBillingAddress] = useState<AddressInput>({ ...emptyVietnamAddress });
+  const [shippingAddress, setShippingAddress] = useState<AddressInput>({ ...emptyVietnamAddress });
+  const [sameAsShipping, setSameAsShipping] = useState(true);
 
   const [estimate, setEstimate] = useState<PrintfulEstimateResponse | null>(null);
 
@@ -246,7 +255,7 @@ export default function CheckoutPage() {
 
   const orderItemsForEstimate = useMemo(() => {
     return items
-      .filter((item) => item.provider === 'printful')
+      .filter((item) => item.provider === 'printful' || !item.provider)
       .map((item) => ({
         catalog_variant_id: Number(item.variantId || item.id),
         external_id: String(item.productId || item.id),
@@ -339,7 +348,7 @@ export default function CheckoutPage() {
           setStripeClientSecretUpdating(false);
         }
       } catch (e: unknown) {
-        const message = e instanceof Error ? e.message : 'Failed to load Stripe UI';
+        const message = e instanceof Error ? e.message : 'Không thể tải giao diện Stripe';
         if (!cancelled) {
           setStripeUiError(message);
           setStripeClientSecretUpdating(false);
@@ -370,10 +379,14 @@ export default function CheckoutPage() {
     setProcessing(true);
 
     try {
+      if (!addressComplete) {
+        throw new Error('Vui lòng điền đầy đủ địa chỉ giao hàng và thanh toán.');
+      }
+
       // SAFETY CHECK: Verify the amount matches the current estimate before charging.
       // This ensures we never charge a different amount than what was quoted.
       if (!estimate?.costs?.total) {
-        throw new Error('Estimate is missing. Cannot complete purchase.');
+        throw new Error('Chưa có báo giá phí vận chuyển. Không thể hoàn tất đặt hàng.');
       }
 
       const estimatedAmountCents = dollarsToCents(estimate.costs.total);
@@ -386,17 +399,34 @@ export default function CheckoutPage() {
       }
 
       // Step 1: Confirm the Stripe payment
+      const billing = sameAsShipping ? shippingAddress : billingAddress;
       const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: 'if_required',
+        confirmParams: {
+          receipt_email: email.trim(),
+          payment_method_data: {
+            billing_details: {
+              name: billing.name,
+              email: email.trim(),
+              phone: billing.phone,
+              address: toStripeAddress(billing),
+            },
+          },
+          shipping: {
+            name: shippingAddress.name,
+            phone: shippingAddress.phone,
+            address: toStripeAddress(shippingAddress),
+          },
+        },
       });
 
       if (confirmError) {
-        throw new Error(confirmError.message || 'Payment failed');
+        throw new Error(confirmError.message || 'Thanh toán thất bại');
       }
 
       if (!paymentIntent) {
-        throw new Error('Payment intent missing after confirmation');
+        throw new Error('Không tìm thấy thông tin thanh toán sau khi xác nhận');
       }
 
       // Step 2: Create order + order_items with the real payment intent id
@@ -422,7 +452,7 @@ export default function CheckoutPage() {
       const orderItemIds = data.order_item_ids;
 
       if (!orderId || !orderItemIds || orderItemIds.length !== items.length) {
-        throw new Error('Checkout failed: missing order ids');
+        throw new Error('Đặt hàng thất bại: thiếu mã đơn hàng');
       }
 
       // Ensure uploads + linking endpoints can auth immediately.
@@ -552,12 +582,16 @@ export default function CheckoutPage() {
       const confirmation = data.confirmation_number || orderId || '';
       navigate(`/orders?confirmation=${encodeURIComponent(confirmation)}`);
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : 'Checkout failed';
+      const message = e instanceof Error ? e.message : 'Đặt hàng thất bại';
       setError(message);
     } finally {
       setProcessing(false);
     }
   };
+
+  const addressComplete =
+    isVietnamAddressComplete(shippingAddress) &&
+    (sameAsShipping || isVietnamAddressComplete(billingAddress));
 
   // Button is disabled unless ALL of these are true:
   // - not already processing
@@ -575,19 +609,20 @@ export default function CheckoutPage() {
     || chargeAmountCents <= 100 // Must be above bootstrap amount ($1.00)
     || stripeClientSecretUpdating // Ensure PaymentIntent amount update is complete
     || !stripeClientSecret
-    || !paymentElementComplete;
+    || !paymentElementComplete
+    || !addressComplete;
 
   return (
     <div className="main-class">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-8">Thanh toán</h1>
 
       <div className="grid gap-6">
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+          <h2 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h2>
 
           <div className="space-y-3">
             {items.length === 0 ? (
-              <p className="text-sm text-gray-600">Your cart is empty.</p>
+              <p className="text-sm text-gray-600">Giỏ hàng của bạn đang trống.</p>
             ) : (
               orderSummaryLines.map((line) => (
                 <div key={line.id} className="flex items-start justify-between gap-4">
@@ -607,7 +642,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="mt-5 pt-4 border-t border-gray-200 flex items-center justify-between">
-            <span className="font-semibold">Subtotal</span>
+            <span className="font-semibold">Tạm tính</span>
             <span className="font-semibold">{formattedTotalPrice}</span>
           </div>
 
@@ -635,7 +670,7 @@ export default function CheckoutPage() {
               placeholder="you@example.com"
             />
             {!emailValid && email.trim().length > 0 && (
-              <p className="mt-2 text-sm text-red-600">Please enter a valid email address.</p>
+              <p className="mt-2 text-sm text-red-600">Vui lòng nhập địa chỉ email hợp lệ.</p>
             )}
           </div>
 
@@ -649,7 +684,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="rounded-md border border-gray-200 bg-white p-4">
-          <div className="font-semibold mb-2">Checkout details</div>
+          <div className="font-semibold mb-2">Chi tiết thanh toán</div>
           <div className="text-sm text-gray-600 mb-3">
             Stripe forms are displayed (billing/shipping/payment UI only). No payment is processed yet.
           </div>
@@ -657,7 +692,7 @@ export default function CheckoutPage() {
           {!stripePublishableKey && (
             <div className="rounded-md border border-dashed border-gray-300 p-4">
               <div className="text-sm text-gray-600">
-                Missing <span className="font-semibold">VITE_STRIPE_PUBLISHABLE_KEY</span>. Stripe UI can’t render.
+                Thiếu <span className="font-semibold">VITE_STRIPE_PUBLISHABLE_KEY</span>. Không thể hiển thị giao diện Stripe.
               </div>
             </div>
           )}
@@ -675,49 +710,40 @@ export default function CheckoutPage() {
                 stripe={stripePromise} 
                 options={{ clientSecret: stripeClientSecret }}>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="text-sm font-semibold">Billing address</div>
-                      <AddressElement
-                        options={{ mode: 'billing', allowedCountries: ['US', 'CA'] }}
-                        onChange={(e) => {
-                          if (e.complete) {
-                            setBillingAddress({
-                              name: e.value.name,
-                              line1: e.value.address.line1,
-                              line2: e.value.address.line2 ?? null,
-                              city: e.value.address.city,
-                              state: e.value.address.state,
-                              postal_code: e.value.address.postal_code,
-                              country: e.value.address.country,
-                            });
-                          }
-                        }}
-                      />
-                    </div>
+                    <VietnamAddressForm
+                      title="Địa chỉ giao hàng"
+                      value={shippingAddress}
+                      onChange={(value) => {
+                        setShippingAddress(value);
+                        if (sameAsShipping) setBillingAddress(value);
+                      }}
+                    />
 
                     <div className="space-y-2">
-                      <div className="text-sm font-semibold">Shipping address</div>
-                      <AddressElement
-                        options={{ mode: 'shipping', allowedCountries: ['US', 'CA'] }}
-                        onChange={(e) => {
-                          if (e.complete) {
-                            setShippingAddress({
-                              name: e.value.name,
-                              line1: e.value.address.line1,
-                              line2: e.value.address.line2 ?? null,
-                              city: e.value.address.city,
-                              state: e.value.address.state,
-                              postal_code: e.value.address.postal_code,
-                              country: e.value.address.country,
-                            });
-                          }
-                        }}
-                      />
+                      <label className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={sameAsShipping}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setSameAsShipping(checked);
+                            if (checked) setBillingAddress(shippingAddress);
+                          }}
+                        />
+                        Địa chỉ thanh toán giống địa chỉ giao hàng
+                      </label>
+                      {!sameAsShipping && (
+                        <VietnamAddressForm
+                          title="Địa chỉ thanh toán"
+                          value={billingAddress}
+                          onChange={setBillingAddress}
+                        />
+                      )}
                     </div>
 
                     {chargeAmountCents > 100 && (
                       <div className="space-y-2">
-                        <div className="text-sm font-semibold">Payment info</div>
+                        <div className="text-sm font-semibold">Thông tin thanh toán</div>
                         <PaymentElement 
                         options={{ 
                           layout: 'tabs', 
@@ -734,9 +760,9 @@ export default function CheckoutPage() {
                       </div>
                     )}
 
-                    {chargeAmountCents <= 100 && shippingAddress && (
+                    {chargeAmountCents <= 100 && !estimate && (
                       <div className="rounded-md border border-dashed border-gray-300 p-4">
-                        <div className="text-sm text-gray-600">Calculating shipping estimate...</div>
+                        <div className="text-sm text-gray-600">Đang tính phí vận chuyển…</div>
                       </div>
                     )}
 
@@ -749,7 +775,7 @@ export default function CheckoutPage() {
                             onClick={() => handleCompletePurchase(stripe!, elements!)}
                             className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {processing ? 'Processing...' : 'Complete Purchase'}
+                            {processing ? 'Đang xử lý…' : 'Hoàn tất đặt hàng'}
                           </button>
                         </div>
                       )}
@@ -760,15 +786,13 @@ export default function CheckoutPage() {
 
               {stripeUiLoading && (
                 <div className="rounded-md border border-dashed border-gray-300 p-4">
-                  <div className="text-sm text-gray-600">Loading Stripe UI…</div>
+                  <div className="text-sm text-gray-600">Đang tải giao diện Stripe…</div>
                 </div>
               )}
 
               {stripeUiError === '' && !stripeUiLoading && !stripeClientSecret && (
                 <div className="rounded-md border border-dashed border-gray-300 p-4">
-                  <div className="text-sm text-gray-600">
-                    Enter a valid email to load the Stripe forms.
-                  </div>
+                  <div className="text-sm text-gray-600">Nhập email hợp lệ để tải biểu mẫu Stripe.</div>
                 </div>
               )}
             </div>
@@ -777,7 +801,7 @@ export default function CheckoutPage() {
 
         <div className="text-bold flex justify-between rounded-md border border-gray-200 bg-white p-4 text-center">
           {estimate && (<>
-           <div className="text-bold">Total</div> <div >{currencyFormatter.format(Number(estimate.costs.total))}</div>
+           <div className="text-bold">Tổng cộng</div> <div >{currencyFormatter.format(Number(estimate.costs.total))}</div>
             </>)}
         </div>
 

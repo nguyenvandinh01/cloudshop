@@ -161,6 +161,7 @@ export const addresses = sqliteTable('addresses', {
   user_id: text('user_id').notNull(),
 
   name: text('name'),
+  phone: text('phone'),
   line1: text('line1'),
   line2: text('line2'),
   city: text('city'),

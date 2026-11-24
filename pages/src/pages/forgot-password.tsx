@@ -34,16 +34,16 @@ export default function ForgotPasswordPage() {
         | undefined;
 
       if (!response.ok) {
-        setError(data?.error || 'Failed to request password reset');
+        setError(data?.error || 'Không thể gửi yêu cầu đặt lại mật khẩu');
         return;
       }
 
-      setStatus(data?.message || 'If your email exists, you will receive a reset link.');
+      setStatus(data?.message || 'Nếu email của bạn tồn tại, bạn sẽ nhận được link đặt lại mật khẩu.');
       if (data?.reset_token) {
         setDevResetToken(data.reset_token);
       }
     } catch {
-      setError('Network error while requesting password reset');
+      setError('Lỗi mạng khi yêu cầu đặt lại mật khẩu');
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-center mb-6">Forgot Password</h2>
+        <h2 className="text-2xl font-bold text-center mb-6">Quên mật khẩu</h2>
 
         {error && (
           <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
 
             {devResetToken ? (
               <div className="mt-3">
-                <div className="text-sm font-semibold">Dev reset link:</div>
+                <div className="text-sm font-semibold">Link đặt lại (dev):</div>
                 <a
                   href={`/reset-password?token=${encodeURIComponent(devResetToken)}`}
                   className="text-sm text-green-900 underline hover:text-green-700 break-all"
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
             disabled={isSubmitting}
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? 'Sending...' : 'Send reset link'}
+            {isSubmitting ? 'Đang gửi…' : 'Gửi link đặt lại'}
           </button>
         </form>
 

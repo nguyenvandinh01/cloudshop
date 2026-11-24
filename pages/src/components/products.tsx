@@ -42,7 +42,7 @@ export default function ProductsSection({ title, products }: ProductsProps) {
               {product.image ? (
                 <img
                   src={product.image}
-                  alt={product.title ?? 'Product image'}
+                  alt={product.title ?? 'Ảnh sản phẩm'}
                   className="w-full h-32 object-cover rounded-md mb-3 border border-gray-200"
                   loading="lazy"
                 />
@@ -59,7 +59,7 @@ export default function ProductsSection({ title, products }: ProductsProps) {
 
               {product.variants && product.variants.length > 0 && (
                 <p className="text-sm text-gray-500 mt-2">
-                  From ${product.variants[0].price}
+                  Từ ${product.variants[0].price}
                 </p>
               )}
             </Link>

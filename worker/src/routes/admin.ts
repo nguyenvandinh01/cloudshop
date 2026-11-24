@@ -51,7 +51,8 @@ admin.post('/sync-products', verifyJWT, async (c) => {
         const last = u.pathname.split('/').filter(Boolean).pop();
         return last || 'file';
       } catch {
-        return 'file';
+        // Local images are served as relative paths, e.g. /images/products/tshirt.jpg
+        return url.split('?')[0].split('/').filter(Boolean).pop() || 'file';
       }
     }
 
@@ -87,7 +88,7 @@ admin.post('/sync-products', verifyJWT, async (c) => {
 
       // Insert product files from mock images[]
       if (Array.isArray(p.images)) {
-        for (const url of p.images) {
+        for (const [imageIndex, url] of p.images.entries()) {
           if (typeof url !== 'string') continue;
           await db.insert(schema.files).values({
             id: crypto.randomUUID(),
@@ -96,6 +97,8 @@ admin.post('/sync-products', verifyJWT, async (c) => {
             url,
             filename: filenameFromUrl(url),
             meta: '{}',
+            // Keep the original image order stable when picking the list thumbnail.
+            created_at: syncedAtMs + imageIndex,
           });
         }
       }
@@ -118,7 +121,7 @@ admin.post('/sync-products', verifyJWT, async (c) => {
         });
 
         if (Array.isArray(v.images)) {
-          for (const url of v.images) {
+          for (const [imageIndex, url] of v.images.entries()) {
             if (typeof url !== 'string') continue;
             await db.insert(schema.files).values({
               id: crypto.randomUUID(),
@@ -127,6 +130,7 @@ admin.post('/sync-products', verifyJWT, async (c) => {
               url,
               filename: filenameFromUrl(url),
               meta: '{}',
+              created_at: syncedAtMs + imageIndex,
             });
           }
         }
@@ -297,6 +301,27 @@ admin.get('/orders/:id', verifyJWT, async (c) => {
       return c.json({ error: 'Order not found' }, 404);
     }
 
+    const addressRows = await db
+      .select({
+        address_type: schema.orderAddresses.address_type,
+        name: schema.addresses.name,
+        phone: schema.addresses.phone,
+        line1: schema.addresses.line1,
+        line2: schema.addresses.line2,
+        city: schema.addresses.city,
+        state: schema.addresses.state,
+        postal_code: schema.addresses.postal_code,
+        country: schema.addresses.country,
+      })
+      .from(schema.orderAddresses)
+      .innerJoin(schema.addresses, eq(schema.orderAddresses.address_id, schema.addresses.id))
+      .where(eq(schema.orderAddresses.order_id, id));
+
+    const addresses = {
+      billing: addressRows.find((row) => row.address_type === 'billing') ?? null,
+      shipping: addressRows.find((row) => row.address_type === 'shipping') ?? null,
+    };
+
     const itemRows = await db
       .select({
         order_item_id: schema.orderItems.id,
@@ -324,6 +349,7 @@ admin.get('/orders/:id', verifyJWT, async (c) => {
       total_price: order.total_price,
       created_at: order.created_at,
       user: { id: order.user_id, email: order.user_email },
+      addresses,
       items: itemRows.map((row) => ({
         order_item_id: row.order_item_id,
         product_variant_id: row.product_variant_id,

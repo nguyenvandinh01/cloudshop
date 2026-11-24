@@ -53,7 +53,7 @@ function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error('Không thể đọc tệp'));
     reader.readAsDataURL(file);
   });
 }
@@ -149,7 +149,7 @@ export default function ProductPage() {
     void fetchProduct();
   }, [id]);
 
-  const displayName = product?.title || product?.name || 'Product';
+  const displayName = product?.title || product?.name || 'Sản phẩm';
 
     const variantPriceLabel = useCallback((price: number = 0) => {
     // const price = selectedVariant?.price ?? 0;
@@ -186,7 +186,7 @@ export default function ProductPage() {
       } catch (err) {
         if (!cancelled) {
           console.error('Failed to load print studio template config:', err);
-          setPrintStudioError('Failed to load print studio configuration.');
+          setPrintStudioError('Không thể tải cấu hình công cụ thiết kế.');
           setPrintStudioConfig(null);
         }
       } finally {
@@ -276,7 +276,7 @@ export default function ProductPage() {
     addItem({
       id: String(selectedVariant.external_id ?? selectedVariant.id) + (printAssetKey ? `-${printAssetKey}` : ''),
       name: `${displayName} - ${
-        selectedVariant.title || selectedVariant.size || selectedVariant.color || 'Default'
+        selectedVariant.title || selectedVariant.size || selectedVariant.color || 'Mặc định'
       }`,
       price: priceInCents,
       currency: 'USD',
@@ -314,8 +314,8 @@ export default function ProductPage() {
     setTechnique(technique);
   }
 
-  if (loading) return <div className="p-8">Loading...</div>;
-  if (!product) return <div className="p-8">Product not found</div>;
+  if (loading) return <div className="p-8">Đang tải…</div>;
+  if (!product) return <div className="p-8">Không tìm thấy sản phẩm</div>;
 
   return (
     <div className="main-class">
@@ -364,7 +364,7 @@ export default function ProductPage() {
           <div className="mb-4">
             {product.variants && product.variants.length > 0 && (
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select Option</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Chọn tùy chọn</label>
                 <select
                   value={selectedVariant?.id || ''}
                   onChange={(e) => {
@@ -386,7 +386,7 @@ export default function ProductPage() {
 
             {product.techniques && product?.techniques.length > 0 && (
               <div className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Technique</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Kỹ thuật in</label>
                 <select
                   disabled={product.techniques.length <= 1}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -508,14 +508,14 @@ export default function ProductPage() {
         onClose={() => {
           setCustomizeOpen(false);
         }}
-        title="Customize"
+        title="Tùy chỉnh"
       >
         {printStudioLoading || !printStudioConfig ? (
           <div className="p-6">
             {printStudioError ? (
               <div className="text-red-600">{printStudioError}</div>
             ) : (
-              <div>Loading print studio...</div>
+              <div>Đang tải công cụ thiết kế…</div>
             )}
           </div>
         ) : (

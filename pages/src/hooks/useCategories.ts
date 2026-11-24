@@ -29,7 +29,7 @@ export function useCategories() {
         if (!cancelled) setCategories(next);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load categories');
+          setError(e instanceof Error ? e.message : 'Không thể tải danh mục');
         }
       } finally {
         if (!cancelled) setLoading(false);

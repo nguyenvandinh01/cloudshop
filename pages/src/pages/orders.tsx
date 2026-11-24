@@ -73,7 +73,7 @@ export default function OrdersPage() {
     return (
       <div className="main-class flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Please sign in to view orders</h2>
+          <h2 className="text-2xl font-bold mb-4">Vui lòng đăng nhập để xem đơn hàng</h2>
           <a href="/login" className="text-indigo-600 hover:text-indigo-700">
             Go to login
           </a>
@@ -87,11 +87,11 @@ export default function OrdersPage() {
   return (
     <div className="main-class">
         <h1 className="text-3xl font-bold mb-8">
-          {showConfirmation ? 'Order Confirmed' : 'Your Orders'}
+          {showConfirmation ? 'Đơn hàng đã xác nhận' : 'Đơn hàng của bạn'}
         </h1>
 
         {loading ? (
-          <p>Loading orders...</p>
+          <p>Đang tải đơn hàng…</p>
         ) : showConfirmation ? (
           orderDetail ? (
             <div className="border border-gray-200 rounded-lg p-6 space-y-4">
@@ -109,20 +109,20 @@ export default function OrdersPage() {
               </div>
 
               <div className="pt-4 border-t border-gray-200">
-                <p className="font-semibold mb-3">Items</p>
+                <p className="font-semibold mb-3">Sản phẩm</p>
                 {orderDetail.items && orderDetail.items.length > 0 ? (
                   <div className="space-y-2">
                     {orderDetail.items.map((item) => (
                       <div key={item.product_variant_id} className="flex justify-between gap-4">
                         <span className="text-sm text-gray-700">Variant {item.product_variant_id}</span>
                         <span className="text-sm text-gray-600">
-                          Qty {item.quantity} • {formatMoney(item.price_at_purchase)}
+                          Số lượng: {item.quantity} • {formatMoney(item.price_at_purchase)}
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600">No items found for this order.</p>
+                  <p className="text-sm text-gray-600">Không có sản phẩm trong đơn hàng này.</p>
                 )}
               </div>
 
@@ -130,14 +130,12 @@ export default function OrdersPage() {
                 <a
                   href="/"
                   className="inline-block bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-                >
-                  Continue shopping
-                </a>
+                >Tiếp tục mua sắm</a>
               </div>
             </div>
           ) : (
             <div className="text-center">
-              <p className="text-gray-600 mb-4">We couldn’t load that order confirmation.</p>
+              <p className="text-gray-600 mb-4">Không thể tải xác nhận đơn hàng.</p>
               <a href="/" className="text-indigo-600 hover:text-indigo-700">
                 Start shopping
               </a>
@@ -145,7 +143,7 @@ export default function OrdersPage() {
           )
         ) : orders.length === 0 ? (
           <div className="text-center">
-            <p className="text-gray-600 mb-4">You haven't placed any orders yet</p>
+            <p className="text-gray-600 mb-4">Bạn chưa đặt đơn hàng nào</p>
             <a href="/" className="text-indigo-600 hover:text-indigo-700">
               Start shopping
             </a>

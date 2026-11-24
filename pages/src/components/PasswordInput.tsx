@@ -81,7 +81,7 @@ export default function PasswordInput(props: PasswordInputProps) {
           disabled ? 'opacity-50 cursor-not-allowed' : '',
         ].join(' ')}
         onClick={() => setVisible((v) => !v)}
-        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
         aria-pressed={visible}
         disabled={disabled}
       >

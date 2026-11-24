@@ -58,7 +58,7 @@ export default function PrintfulEstimate({
         }
         setEstimate(response.data);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to get estimate';
+        const message = err instanceof Error ? err.message : 'Không thể lấy báo giá';
         setError(message);
       } finally {
         setLoading(false);
@@ -108,22 +108,43 @@ export default function PrintfulEstimate({
   if (mode === 'auto') {
     return (
       <div className="mt-4 border-t border-gray-200 pt-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-2">Total Costs</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">Tổng chi phí</h3>
         {loading && (
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            Calculating estimate...
+            Đang tính phí vận chuyển…
           </div>
         )}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <div className="space-y-2">
+            <p className="text-sm text-red-600">Không tính được phí vận chuyển: {error}</p>
+            {shippingAddress && (
+              <button
+                type="button"
+                onClick={() => {
+                  autoTriggeredRef.current = false;
+                  setError(null);
+                  fetchEstimate({
+                    state_code: shippingAddress.state_code,
+                    country_code: shippingAddress.country_code ?? 'VN',
+                    zip: shippingAddress.zip,
+                  });
+                }}
+                className="text-sm text-indigo-600 hover:text-indigo-700 underline"
+              >
+                Thử lại
+              </button>
+            )}
+          </div>
+        )}
         {estimate && estimate.status === 'completed' && (
           <EstimateBreakdown costs={estimate.costs} />
         )}
         {!loading && !error && !estimate && (
-          <p className="text-sm text-gray-400">Complete shipping fields to see estimate</p>
+          <p className="text-sm text-gray-400">Điền đủ địa chỉ giao hàng để xem phí vận chuyển</p>
         )}
       </div>
     );
@@ -139,7 +160,7 @@ export default function PrintfulEstimate({
           disabled={loading}
           className="w-full bg-white text-black border-2 border-black py-2 rounded-md hover:bg-black hover:text-white transition cursor-pointer disabled:opacity-50"
         >
-          {loading ? 'Getting Estimate...' : 'Get Estimate'}
+          {loading ? 'Đang lấy báo giá…' : 'Lấy báo giá'}
         </button>
       )}
 
@@ -151,7 +172,7 @@ export default function PrintfulEstimate({
           <input
             type="text"
             inputMode="numeric"
-            placeholder="ZIP code"
+            placeholder="Mã bưu điện"
             value={zip}
             onChange={handleZipChange}
             maxLength={5}
@@ -202,13 +223,13 @@ function EstimateBreakdown({ costs }: { costs: PrintfulEstimateResponse['costs']
   });
 
   const rows: Array<{ label: string; value: string }> = [
-    { label: 'Subtotal', value: costs.subtotal },
-    { label: 'Shipping', value: costs.shipping },
-    { label: 'Tax', value: costs.tax },
+    { label: 'Tạm tính', value: costs.subtotal },
+    { label: 'Vận chuyển', value: costs.shipping },
+    { label: 'Thuế', value: costs.tax },
   ];
 
   if (costs.discount && costs.discount !== '0.00') {
-    rows.push({ label: 'Discount', value: `-${costs.discount}` });
+    rows.push({ label: 'Giảm giá', value: `-${costs.discount}` });
   }
 
   if (costs.vat && costs.vat !== '0.00') {
@@ -216,16 +237,16 @@ function EstimateBreakdown({ costs }: { costs: PrintfulEstimateResponse['costs']
   }
 
   if (costs.digitization && costs.digitization !== '0.00') {
-    rows.push({ label: 'Digitization', value: costs.digitization });
+    rows.push({ label: 'Gia công in', value: costs.digitization });
   }
 
   if (costs.additional_fee && costs.additional_fee !== '0.00') {
-    rows.push({ label: 'Additional Fee', value: costs.additional_fee });
+    rows.push({ label: 'Phí bổ sung', value: costs.additional_fee });
   }
 
   return (
     <div className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm">
-      <h4 className="font-semibold text-gray-700 mb-2">Cost</h4>
+      <h4 className="font-semibold text-gray-700 mb-2">Chi phí</h4>
       <div className="space-y-1">
         {rows.map((row) => (
           <div key={row.label} className="flex justify-between">
@@ -234,7 +255,7 @@ function EstimateBreakdown({ costs }: { costs: PrintfulEstimateResponse['costs']
           </div>
         ))}
         <div className="flex justify-between border-t border-gray-200 pt-1 mt-1 font-semibold">
-          <span>Total</span>
+          <span>Tổng cộng</span>
           <span>{currencyFormatter.format(Number(costs.total))}</span>
         </div>
       </div>

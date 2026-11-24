@@ -23,7 +23,7 @@ export default function LoginPage() {
       }
       navigate('/');
     } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+      setError(err.message || 'Xác thực thất bại');
     }
   };
 
@@ -31,7 +31,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow p-6">
         <h2 className="text-2xl font-bold text-center mb-6">
-          {isSignup ? 'Sign Up' : 'Sign In'}
+          {isSignup ? 'Đăng ký' : 'Đăng nhập'}
         </h2>
 
         {error && (
@@ -42,9 +42,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
               value={email}
@@ -57,9 +55,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
             <PasswordInput
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -72,16 +68,14 @@ export default function LoginPage() {
           </div>
 
           <div className="text-right">
-            <a href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700">
-              Forgot password?
-            </a>
+            <a href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700">Quên mật khẩu?</a>
           </div>
 
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
           >
-            {isSignup ? 'Sign Up' : 'Sign In'}
+            {isSignup ? 'Đăng ký' : 'Đăng nhập'}
           </button>
         </form>
 
@@ -91,8 +85,8 @@ export default function LoginPage() {
             className="text-sm text-indigo-600 hover:text-indigo-700"
           >
             {isSignup
-              ? 'Already have an account? Sign In'
-              : "Don't have an account? Sign Up"}
+              ? 'Đã có tài khoản? Đăng nhập'
+              : "Chưa có tài khoản? Đăng ký"}
           </button>
         </div>
       </div>

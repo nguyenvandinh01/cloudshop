@@ -12,18 +12,18 @@ export default function HomePage() {
   return (
     <div className="main-class">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900">Our Products</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Sản phẩm của chúng tôi</h2>
       </div>
 
       {dbError ? <p className="text-sm text-red-600 mb-6">{dbError}</p> : null}
-      <ProductsSection title="Featured Products" products={dbCards} />
-      {dbLoading ? <p className="text-sm text-gray-600 mt-2">Loading featured products...</p> : null}
+      <ProductsSection title="Sản phẩm nổi bật" products={dbCards} />
+      {dbLoading ? <p className="text-sm text-gray-600 mt-2">Đang tải sản phẩm nổi bật…</p> : null}
 
       <div className="mt-10" />
       {categoriesError ? <p className="text-sm text-red-600 mb-6">{categoriesError}</p> : null}
 
       <Categories
-        title="Categories"
+        title="Danh mục"
         categories={(categories ?? []).map((c) => ({
           id: c.id,
           title: c.title,
@@ -31,7 +31,7 @@ export default function HomePage() {
         }))}
       />
 
-      {categoriesLoading ? <p className="text-sm text-gray-600 mt-2">Loading categories...</p> : null}
+      {categoriesLoading ? <p className="text-sm text-gray-600 mt-2">Đang tải danh mục…</p> : null}
     </div>
   );
 }

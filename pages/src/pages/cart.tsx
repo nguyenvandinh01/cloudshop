@@ -104,9 +104,9 @@ export default function CartPage() {
     <div className="main-class">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Shopping Cart</h1>
+          <h1 className="text-3xl font-bold">Giỏ hàng</h1>
           <p className="text-gray-600 mt-2">
-            {cartCount} item{cartCount === 1 ? '' : 's'}
+            {cartCount} sản phẩm
           </p>
         </div>
 
@@ -115,18 +115,14 @@ export default function CartPage() {
             type="button"
             onClick={() => clearCart()}
             className="self-start sm:self-auto text-sm font-medium text-red-600 hover:text-red-700"
-          >
-            Clear cart
-          </button>
+          >Xóa giỏ hàng</button>
         )}
       </div>
 
       {items.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-lg">
-          <p className="text-gray-600 mb-4">Your cart is empty</p>
-          <Link to="/" className="text-indigo-600 hover:text-indigo-700 font-medium">
-            Continue shopping
-          </Link>
+          <p className="text-gray-600 mb-4">Giỏ hàng của bạn đang trống</p>
+          <Link to="/" className="text-indigo-600 hover:text-indigo-700 font-medium">Tiếp tục mua sắm</Link>
         </div>
       ) : (
         <div className="grid gap-6">
@@ -154,7 +150,7 @@ export default function CartPage() {
                     <div className="min-w-0">
                       <h2 className="text-lg font-semibold text-gray-900 truncate">{item.name}</h2>
                       <p className="text-sm text-gray-600 mt-1">
-                        {item.formattedValue} total
+                        {item.formattedValue} tổng cộng
                       </p>
                     </div>
                   </div>
@@ -165,7 +161,7 @@ export default function CartPage() {
                     type="button"
                     onClick={() => decrementItem(item.id, { count: 1 })}
                     className="h-10 w-10 rounded-md border border-gray-300 text-lg font-semibold hover:bg-gray-100"
-                    aria-label={`Decrease quantity of ${item.name}`}
+                    aria-label={`Giảm số lượng ${item.name}`}
                   >
                     −
                   </button>
@@ -176,7 +172,7 @@ export default function CartPage() {
                     type="button"
                     onClick={() => incrementItem(item.id, { count: 1 })}
                     className="h-10 w-10 rounded-md border border-gray-300 text-lg font-semibold hover:bg-gray-100"
-                    aria-label={`Increase quantity of ${item.name}`}
+                    aria-label={`Tăng số lượng ${item.name}`}
                   >
                     +
                   </button>
@@ -185,9 +181,7 @@ export default function CartPage() {
                     type="button"
                     onClick={() => removeItem(item.id)}
                     className="ml-2 text-sm font-medium text-red-600 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
+                  >Xóa</button>
                 </div>
               </div>
             ))}
@@ -197,7 +191,7 @@ export default function CartPage() {
 
           <div className="rounded-lg border border-gray-200 p-6">
             <div className="flex items-center justify-between text-lg font-semibold">
-              <span>Subtotal</span>
+              <span>Tạm tính</span>
               <span>{formattedTotalPrice}</span>
             </div>
 
@@ -212,9 +206,7 @@ export default function CartPage() {
               type="button"
               onClick={() => navigate('/checkout')}
               className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
-            >
-              Proceed to Checkout
-            </button>
+            >Tiến hành thanh toán</button>
           </div>
         </div>
       )}
